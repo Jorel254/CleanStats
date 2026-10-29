@@ -133,6 +133,10 @@ public class ScanSummary
         {
             _Status = ScanStatus.Failed;
         }
+        else if (status == ScanStatus.Cancelled && Status == ScanStatus.NotStarted)
+        {
+            _Status = ScanStatus.Cancelled;
+        }
         else
         {
             throw new InvalidOperationException("No se puede actualizar el estado de un escaneo que no está en curso.");

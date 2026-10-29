@@ -1,29 +1,146 @@
 <Window x:Class="CleanStats.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CleanStats" Height="520" Width="900"
-        MinHeight="420" MinWidth="700"
-        WindowStartupLocation="CenterScreen">
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <TextBlock Text="CleanStats" FontSize="28" FontWeight="SemiBold" />
-        <TextBlock Grid.Row="1" Margin="0,8,0,20" Foreground="Gray"
-                   Text="Analizador local de almacenamiento · etapa inicial de desarrollo" />
-        <Border Grid.Row="2" BorderBrush="#D0D0D0" BorderThickness="1" CornerRadius="8" Padding="20">
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Base de la aplicación creada" FontSize="20" FontWeight="SemiBold" />
-                <TextBlock Margin="0,10,0,0" TextWrapping="Wrap"
-                           Text="Esta versión es únicamente el esqueleto de la interfaz. Todavía no analiza, clasifica, modifica ni elimina archivos." />
-                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap"
-                           Text="La siguiente etapa incorporará los modelos y contratos del escaneo; el escáner se implementará después de validar esta base." />
+        Title="CleanStats" Width="960" Height="660"
+        WindowStartupLocation="CenterScreen" Background="#1F1F1F"
+        FontFamily="Segoe UI" Foreground="#C0C0C0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="26,24,26,20">
+            <DockPanel  VerticalAlignment="Center">
+                <Border Width="44" Height="44" CornerRadius="12" Background="{StaticResource Rojo}">
+                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="22"
+                     Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="CleanStats" FontSize="22" FontWeight="Bold"
+                     Foreground="#FFFFFF"/>
+                    <TextBlock Text="Analiza archivos sin modificar el sistema"
+                     FontSize="12" Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <Border Width="100" Height="20" CornerRadius="5" Background="{StaticResource Rojo}" DockPanel.Dock="Right">
+                    <TextBlock Text="Escaneo local" FontSize="13" FontWeight="Bold" Foreground="White"  Padding="2" TextAlignment="Center"/>
+                </Border>
+            </DockPanel>
+
+            <!-- Tarjeta: ubicación -->
+            <Border Background="{StaticResource Tarjeta}" CornerRadius="18"
+              BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
+              Effect="{StaticResource SombraTarjeta}" Margin="0,22,0,0" Padding="20,18">
+                <StackPanel>
+                    <TextBlock Text="UBICACIÓN DEL ESCANEO" FontSize="11" FontWeight="SemiBold"
+                     Foreground="{StaticResource PlataTenue}"/>
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Width="46" Height="46" CornerRadius="12" Background="{StaticResource RojoSuave}">
+                            <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" FontSize="20"
+                         Foreground="{StaticResource RojoClaro}"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Carpeta seleccionada" FontSize="11"
+                         Foreground="{StaticResource PlataTenue}"/>
+                            <TextBlock x:Name="TxtRuta" Text="C:\Users\Usuario" FontFamily="Consolas"
+                         FontSize="14" Foreground="{StaticResource Plata}"
+                         TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="2" Style="{StaticResource BotonChico}" Content="Cambiar"
+                    VerticalAlignment="Center" Margin="12,0,0,0"
+                    ToolTip="Elegir carpeta" x:Name="BtnCambiarRuta" Click="BtnCambiarRuta_Click" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{StaticResource Tarjeta}" CornerRadius="18"
+              BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
+              Effect="{StaticResource SombraTarjeta}" Margin="0,14,0,0" Padding="20,18">
+                <StackPanel>
+                    <TextBlock Text="OPCIONES" FontSize="11" FontWeight="SemiBold"
+                     Foreground="{StaticResource PlataTenue}"/>
+                    <CheckBox x:Name="ChkOcultos" Style="{StaticResource Toggle}"
+                    Content="Incluir archivos y directorios ocultos" Margin="0,12,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{StaticResource Tarjeta}" CornerRadius="18"
+              BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
+              Effect="{StaticResource SombraTarjeta}" Margin="0,14,0,0" Padding="20,18">
+                <StackPanel>
+                    <TextBlock Text="PROGRESO DEL ESCANEO" FontSize="11" FontWeight="SemiBold"
+                     Foreground="{StaticResource PlataTenue}"/>
+
+                    <UniformGrid Columns="3" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE8A9;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                         Foreground="{StaticResource RojoClaro}"/>
+                            <TextBlock x:Name="TxtEncontrados" Text="0" FontSize="26" FontWeight="Light"
+                         Foreground="#FFFFFF" Margin="0,6,0,0"/>
+                            <TextBlock Text="Encontrados" FontSize="11"
+                         Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <StackPanel Margin="10,0,0,0">
+                            <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                         Foreground="{StaticResource Plata}"/>
+                            <TextBlock x:Name="TxtProcesados" Text="0" FontSize="26" FontWeight="Light"
+                         Foreground="#FFFFFF" Margin="0,6,0,0"/>
+                            <TextBlock Text="Procesados" FontSize="11"
+                         Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <StackPanel Margin="10,0,0,0">
+                            <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                         Foreground="{StaticResource Plata}"/>
+                            <TextBlock x:Name="TxtErrores" Text="0" FontSize="26" FontWeight="Light"
+                         Foreground="{StaticResource RojoClaro}" Margin="0,6,0,0"/>
+                            <TextBlock Text="Con errores" FontSize="11"
+                         Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <!--<Grid Margin="0,20,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ProgressBar x:Name="Barra" Minimum="0" Maximum="100" Value="0"/>
+                        <TextBlock x:Name="TxtPorcentaje" Text="0 %" Grid.Column="1" FontSize="13"
+                       FontWeight="SemiBold" Foreground="{StaticResource RojoClaro}"
+                       Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>-->
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,18,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="BtnIniciar" Style="{StaticResource BotonRojo}" Click="BtnIniciar_Click" >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                       VerticalAlignment="Center"/>
+                        <TextBlock Text="Iniciar escaneo" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="BtnCancelar" Grid.Column="2" Style="{StaticResource BotonContorno}"
+                IsEnabled="False" Click="BtnCancelar_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                       VerticalAlignment="Center"/>
+                        <TextBlock Text="Cancelar" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Margin="0,18,0,0" HorizontalAlignment="Center">
+                <Ellipse x:Name="PuntoEstado" Width="8" Height="8" Fill="#C0C0C0"
+                 VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtEstado" Text="Listo para escanear." FontSize="12"
+                   Foreground="{StaticResource PlataTenue}" Margin="8,0,0,0"/>
             </StackPanel>
-        </Border>
-        <TextBlock Grid.Row="3" Margin="0,16,0,0" Foreground="Gray"
-                   Text="Modo actual: sin acceso de escritura al sistema de archivos." />
-    </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

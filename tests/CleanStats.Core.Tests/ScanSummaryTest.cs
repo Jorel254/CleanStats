@@ -34,4 +34,51 @@ public class ScanSummaryTest
         scanSummary.UpdateScanStatus(ScanStatus.Cancelled);
         Assert.True(scanSummary.EndTime > DateTime.MinValue);
     }
+    [Fact]
+    public void UpdateScanStatus_WhenNotStartedAndCancelled_ChangesStatusToCancelled()
+    {
+        // Arrange
+        ScanSummary summary = new ScanSummary();
+
+        // Act
+        summary.UpdateScanStatus(ScanStatus.Cancelled);
+
+        // Assert
+        Assert.Equal(ScanStatus.Cancelled, summary.Status);
+    }
+
+    [Fact]
+    public void UpdateScanStatus_WhenNotStartedAndCancelled_SetsEndTime()
+    {
+        // Arrange
+        ScanSummary summary = new ScanSummary();
+
+        // Act
+        summary.UpdateScanStatus(ScanStatus.Cancelled);
+
+        // Assert
+        Assert.NotNull(summary.EndTime);
+    }
+    [Fact]
+    public void UpdateScanStatus_WhenCompletedFromNotStarted_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        ScanSummary summary = new ScanSummary();
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(
+            () => summary.UpdateScanStatus(ScanStatus.Completed));
+    }
+
+    [Fact]
+    public void UpdateScanStatus_WhenCancelledTwice_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        ScanSummary summary = new ScanSummary();
+        summary.UpdateScanStatus(ScanStatus.Cancelled);
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(
+            () => summary.UpdateScanStatus(ScanStatus.Cancelled));
+    }
 }
