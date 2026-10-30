@@ -10,6 +10,7 @@ public interface IScanCoordinator
 {
     Task<ScanSummary> StartScanAsync(ScanOptions options, CancellationToken cancellationToken);
     ScanSummary? CurrentSummary { get; }
+    ScanResult? CurrentResult { get; }
     void CancelScan();
     event EventHandler<NotificationProgress> ProgressChanged;
 }

@@ -1,3 +1,4 @@
+using CleanStats.Core;
 using CleanStats.Core.Contracts;
 using CleanStats.Core.Model;
 using CleanStats.Core.Progress;
@@ -6,6 +7,11 @@ namespace CleanStats.Infrastructure
 {
     public class FileScanner : IFileScanner
     {
+        private readonly IFileClassifier _fileClassifier;
+        public FileScanner(IFileClassifier classifier)
+        {
+            _fileClassifier = classifier ?? throw new ArgumentNullException(nameof(classifier));
+        }
         public Task<ScanResult> ScanAsync(ScanOptions options, IProgress<ScanProgress>? progress, CancellationToken cancellationToken)
         {
             if (options == null)
@@ -14,7 +20,7 @@ namespace CleanStats.Infrastructure
             }
             if (cancellationToken.IsCancellationRequested)
             {
-                ScanResult result = new ScanResult([], [], ScanStatus.Cancelled);
+                ScanResult result = new ScanResult([], [], [], ScanStatus.Cancelled);
                 return Task.FromResult(result);
             }
 
@@ -26,11 +32,12 @@ namespace CleanStats.Infrastructure
             directoriesToScan.Enqueue(options.RootPath);
             List<FileEntry> fileEntries = new List<FileEntry>();
             List<ScanIssue> issues = new List<ScanIssue>();
+            List<ClassificationResult> classificationResults = new List<ClassificationResult>();
             while (directoriesToScan.Count > 0)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    return new ScanResult(fileEntries.ToArray(), issues.ToArray(), ScanStatus.Cancelled);
+                    return new ScanResult(fileEntries.ToArray(), issues.ToArray(), classificationResults.ToArray(), ScanStatus.Cancelled);
                 }
                 string nextDirectory = directoriesToScan.Dequeue();
                 try
@@ -39,9 +46,37 @@ namespace CleanStats.Infrastructure
                     {
                         if (!options.IncludeHiddenFiles)
                         {
-                            DirectoryInfo dirInfo = new DirectoryInfo(subDirectory);
-                            if (dirInfo.Attributes.HasFlag(FileAttributes.Hidden))
+                            try
                             {
+                                DirectoryInfo dirInfo = new DirectoryInfo(subDirectory);
+                                if (dirInfo.Attributes.HasFlag(FileAttributes.Hidden))
+                                {
+                                    continue;
+                                }
+                            }
+                            catch (UnauthorizedAccessException ex)
+                            {
+                                ScanIssue issue = new ScanIssue(
+                                    null,
+                                    subDirectory,
+                                    ScanIssueError.DirectoryError,
+                                    $"No se pudieron obtener los datos del directorio: {subDirectory}",
+                                    ex.ToString());
+                                issues.Add(issue);
+                                progress?.Report(new DirectoryFailedProgress(issue));
+                                continue;
+
+                            }
+                            catch (IOException ex)
+                            {
+                                ScanIssue issue = new ScanIssue(
+                                    null,
+                                    subDirectory,
+                                    ScanIssueError.DirectoryError,
+                                    $"No se pudieron obtener los datos del directorio: {subDirectory}",
+                                    ex.ToString());
+                                issues.Add(issue);
+                                progress?.Report(new DirectoryFailedProgress(issue));
                                 continue;
                             }
                         }
@@ -84,22 +119,26 @@ namespace CleanStats.Infrastructure
                             return new ScanResult(
                                 fileEntries.ToArray(),
                                 issues.ToArray(),
+                                classificationResults.ToArray(),
                                 ScanStatus.Cancelled);
                         }
-                        progress?.Report(new FileDiscoveredProgress(filePath));
+                        FileEntry entry;
                         try
                         {
+                            progress?.Report(new FileDiscoveredProgress(filePath));
                             FileInfo fileInfo = new FileInfo(filePath);
-                            if (!options.IncludeHiddenFiles)
+
+                            if (!options.IncludeHiddenFiles &&
+                                fileInfo.Attributes.HasFlag(FileAttributes.Hidden))
                             {
-                                if (fileInfo.Attributes.HasFlag(FileAttributes.Hidden))
-                                {
-                                    continue;
-                                }
+                                continue;
                             }
-                            FileEntry entry = new FileEntry(filePath, fileInfo.Length, fileInfo.LastWriteTimeUtc, fileInfo.CreationTimeUtc);
-                            fileEntries.Add(entry);
-                            progress?.Report(new FileProcessedProgress(entry));
+
+                            entry = new FileEntry(
+                                filePath,
+                                fileInfo.Length,
+                                fileInfo.LastWriteTimeUtc,
+                                fileInfo.CreationTimeUtc);
                         }
                         catch (UnauthorizedAccessException ex)
                         {
@@ -111,6 +150,7 @@ namespace CleanStats.Infrastructure
                                 ex.ToString());
                             issues.Add(issue);
                             progress?.Report(new FileFailedProgress(issue));
+                            continue;
                         }
                         catch (IOException ex)
                         {
@@ -122,6 +162,53 @@ namespace CleanStats.Infrastructure
                                 ex.ToString());
                             issues.Add(issue);
                             progress?.Report(new FileFailedProgress(issue));
+                            continue;
+                        }
+
+                        try
+                        {
+                            var classificationResult = _fileClassifier.ClassifyFile(entry);
+                            classificationResults.Add(classificationResult);
+                            fileEntries.Add(entry);
+
+                            progress?.Report(
+                                new FileProcessedProgress(entry, classificationResult));
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            ScanIssue issue = new ScanIssue(
+                                filePath,
+                                null,
+                                ScanIssueError.FileError,
+                                $"No se pudieron clasificar los datos del archivo: {filePath}",
+                                ex.ToString());
+                            issues.Add(issue);
+                            progress?.Report(new FileFailedProgress(issue));
+                            continue;
+                        }
+                        catch (IOException ex)
+                        {
+                            ScanIssue issue = new ScanIssue(
+                                filePath,
+                                null,
+                                ScanIssueError.FileError,
+                                $"No se pudieron clasificar los datos del archivo: {filePath}",
+                                ex.ToString());
+                            issues.Add(issue);
+                            progress?.Report(new FileFailedProgress(issue));
+                            continue;
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            ScanIssue issue = new ScanIssue(
+                            filePath,
+                            null,
+                            ScanIssueError.FileError,
+                            $"Error durante la clasificación del archivo: {filePath}",
+                            ex.ToString());
+                            issues.Add(issue);
+                            progress?.Report(new FileFailedProgress(issue));
+                            continue;
                         }
                     }
                 }
@@ -148,7 +235,7 @@ namespace CleanStats.Infrastructure
                     progress?.Report(new DirectoryFailedProgress(issue));
                 }
             }
-            return new ScanResult(fileEntries.ToArray(), issues.ToArray(), ScanStatus.Completed);
+            return new ScanResult(fileEntries.ToArray(), issues.ToArray(), classificationResults.ToArray(), ScanStatus.Completed);
         }
         private bool IsExcludedPath(string path, string[] excludePaths)
         {

@@ -1,3 +1,4 @@
+using CleanStats.Core;
 using CleanStats.Core.Contracts;
 using CleanStats.Infrastructure;
 
@@ -11,7 +12,9 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
-        IFileScanner scanner = new FileScanner();
+        IFileClassifier classifier = new FileClassifier();
+        IFileScanner scanner = new FileScanner(classifier);
+
         _scanCoordinator = new ScanCoordinator(scanner);
 
         MainWindow mainWindow = new MainWindow(_scanCoordinator);

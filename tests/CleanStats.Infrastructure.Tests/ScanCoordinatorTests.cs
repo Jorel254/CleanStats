@@ -38,9 +38,10 @@ public class ScanCoordinatorTests
 
             await Task.Delay(Timeout.Infinite, cancellationToken);
 
-            return new ScanResult([], [], ScanStatus.Completed);
+            return new ScanResult([], [], [], ScanStatus.Completed);
         }
     }
+
     private sealed class FakeFileScanner : IFileScanner
     {
         private readonly ScanResult _result;
@@ -48,8 +49,8 @@ public class ScanCoordinatorTests
 
         public FakeFileScanner(ScanResult result, params FileEntry[] files)
         {
-            _result = result;
-            _files = files;
+            _result = result ?? throw new ArgumentNullException(nameof(result));
+            _files = files ?? throw new ArgumentNullException(nameof(files));
         }
 
         public Task<ScanResult> ScanAsync(
@@ -62,12 +63,23 @@ public class ScanCoordinatorTests
                 cancellationToken.ThrowIfCancellationRequested();
 
                 progress?.Report(new FileDiscoveredProgress(file.FilePath));
-                progress?.Report(new FileProcessedProgress(file));
+
+                var classification = new ClassificationResult(
+                    file.Id,
+                    ClassificationCategory.Other,
+                    new[] { ClassificationReason.NoMatchingRule },
+                    ClassificationStatus.Classified
+                );
+
+                progress?.Report(
+                    new FileProcessedProgress(file, classification)
+                );
             }
 
             return Task.FromResult(_result);
         }
     }
+
 
     private sealed class BlockingFileScanner : IFileScanner
     {
@@ -83,7 +95,7 @@ public class ScanCoordinatorTests
 
             await Task.Delay(Timeout.Infinite, cancellationToken);
 
-            return new ScanResult([], [], ScanStatus.Completed);
+            return new ScanResult([], [], [], ScanStatus.Completed);
         }
     }
 
@@ -109,6 +121,7 @@ public class ScanCoordinatorTests
         ScanResult result = new ScanResult(
             [file1, file2],
             [],
+            [],
             ScanStatus.Completed);
 
         var scanner = new FakeFileScanner(result, file1, file2);
@@ -122,12 +135,19 @@ public class ScanCoordinatorTests
             CancellationToken.None);
 
         // Assert
-        Assert.Equal(ScanStatus.Completed, summary.Status);
-        Assert.Equal(2, summary.FilesFound);
-        Assert.Equal(2, summary.FilesProcessed);
-        Assert.Equal(0, summary.FilesFailed);
-        Assert.Equal(300, summary.TotalBytesScanned);
-        Assert.NotNull(summary.EndTime);
+        Assert.NotNull(coordinator.CurrentResult);
+
+        Assert.Equal(2, coordinator.CurrentResult.Classifications.Count);
+
+        Assert.Contains(
+            coordinator.CurrentResult.Classifications,
+            classification => classification.FileEntryId == file1.Id
+        );
+
+        Assert.Contains(
+            coordinator.CurrentResult.Classifications,
+            classification => classification.FileEntryId == file2.Id
+        );
     }
 
     [Fact]
@@ -138,7 +158,7 @@ public class ScanCoordinatorTests
             Path.GetTempPath(),
             Guid.NewGuid().ToString());
 
-        var result = new ScanResult([], [], ScanStatus.Completed);
+        var result = new ScanResult([], [], [], ScanStatus.Completed);
         var scanner = new FakeFileScanner(result);
         var coordinator = new ScanCoordinator(scanner);
         var options = new ScanOptions(rootPath, [], false);
@@ -181,7 +201,7 @@ public class ScanCoordinatorTests
     {
         // Arrange
         string rootPath = Path.GetTempPath();
-        var result = new ScanResult([], [], ScanStatus.Completed);
+        var result = new ScanResult([], [], [], ScanStatus.Completed);
         var scanner = new FakeFileScanner(result);
         var coordinator = new ScanCoordinator(scanner);
         var options = new ScanOptions(rootPath, [], false);

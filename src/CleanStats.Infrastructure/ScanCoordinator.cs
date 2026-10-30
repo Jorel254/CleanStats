@@ -16,6 +16,10 @@ public class ScanCoordinator(IFileScanner scanner) : IScanCoordinator
     private readonly SemaphoreSlim _scanLock = new SemaphoreSlim(1, 1);
     private readonly object _scanLockObject = new object();
     private bool _isScanActive = false;
+    private ScanResult? _currentResult;
+    public ScanResult? CurrentResult => _currentResult;
+
+    private List<ClassificationResult> _currentClassifications = new();
 
     public event EventHandler<NotificationProgress> ProgressChanged;
 
@@ -46,6 +50,8 @@ public class ScanCoordinator(IFileScanner scanner) : IScanCoordinator
                 }
                 _isScanActive = true;
                 scanStarted = true;
+                _currentClassifications = new List<ClassificationResult>();
+                _currentResult = null;
                 _currentSummary = summary;
                 summary.StartScan();
                 lock (_scanLockObject)
@@ -62,6 +68,7 @@ public class ScanCoordinator(IFileScanner scanner) : IScanCoordinator
             IProgress<ScanProgress> progress = new SynchronousProgress<ScanProgress>(p => HandleProgress(summary, p));
             var result = await _scanner.ScanAsync(options, progress, cts.Token).ConfigureAwait(false);
             summary.UpdateScanStatus(result.Status);
+            _currentResult = new ScanResult(result.FileEntries.ToArray(), result.Issues.ToArray(), _currentClassifications.ToArray(), result.Status);
             return summary;
         }
         catch (OperationCanceledException)
@@ -128,6 +135,7 @@ public class ScanCoordinator(IFileScanner scanner) : IScanCoordinator
                 break;
             case FileProcessedProgress fileProcessed:
                 summary.UpdateCorrectFile(fileProcessed.File.Size);
+                _currentClassifications.Add(fileProcessed.ClassificationResult);
                 break;
             case FileFailedProgress fileFailed:
                 summary.UpdateFailedFile(fileFailed.Issue);

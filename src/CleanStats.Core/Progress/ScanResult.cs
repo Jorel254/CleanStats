@@ -16,9 +16,11 @@ public class ScanResult
 
     public ReadOnlyObservableCollection<ScanIssue> Issues { get; }
 
+    public ReadOnlyObservableCollection<ClassificationResult> Classifications { get; }
+
     public ScanStatus Status { get; }
 
-    public ScanResult(FileEntry[] fileEntries, ScanIssue[] issues, ScanStatus status)
+    public ScanResult(FileEntry[] fileEntries, ScanIssue[] issues, ClassificationResult[] classifications, ScanStatus status)
     {
         if (fileEntries == null)
         {
@@ -37,7 +39,17 @@ public class ScanResult
 
         if (issues.Any(issue => issue == null))
         {
-            throw new ArgumentException("La colección de problemas no puede contener elementos nulos.", nameof(issues));
+            throw new ArgumentNullException("La colección de problemas no puede contener elementos nulos.", nameof(issues));
+        }
+        if (classifications == null)
+        {
+            throw new ArgumentNullException(nameof(classifications));
+        }
+        if (classifications.Any(classification => classification == null))
+        {
+            throw new ArgumentException(
+                "La colección de clasificaciones no puede contener elementos nulos.",
+                nameof(classifications));
         }
 
         if (status == ScanStatus.NotStarted || status == ScanStatus.InProgress)
@@ -53,6 +65,7 @@ public class ScanResult
         FileEntries = new ReadOnlyObservableCollection<FileEntry>(_fileEntries);
         _issues = new ObservableCollection<ScanIssue>(issues);
         Issues = new ReadOnlyObservableCollection<ScanIssue>(_issues);
+        Classifications = new ReadOnlyObservableCollection<ClassificationResult>(new ObservableCollection<ClassificationResult>(classifications));
         Status = status;
     }
 }
