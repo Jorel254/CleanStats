@@ -1,15 +1,17 @@
+using CleanStats.Core.Contracts;
+using CleanStats.Core.Model;
+using Microsoft.Win32;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
-using CleanStats.Core.Contracts;
-using Microsoft.Win32;
-using CleanStats.Core.Model;
 using System.Windows.Threading;
-using System.IO;
 namespace CleanStats.App;
 
 public partial class MainWindow : System.Windows.Window
 {
     private readonly IScanCoordinator _scanCoordinator;
+    public ObservableCollection<FileScanRow> rows { get; set; }
 
     public MainWindow(IScanCoordinator scanCoordinator)
     {
@@ -46,14 +48,35 @@ public partial class MainWindow : System.Windows.Window
         }
 
         var options = new ScanOptions(TxtRuta.Text, [], IncludeHiddenFiles);
-
+        rows = new ObservableCollection<FileScanRow>();
         BtnIniciar.IsEnabled = false;
         BtnCancelar.IsEnabled = true;
         try
         {
-            var result = await _scanCoordinator.StartScanAsync(options, CancellationToken.None);
+            var summary = await _scanCoordinator.StartScanAsync(options, CancellationToken.None);
 
-            TxtEstado.Text = result.Status.ToString();
+            var result = _scanCoordinator.CurrentResult;
+            if (result != null)
+            {
+                var dictionaryClassificationResults =
+                    result.Classifications.ToDictionary(cr => cr.FileEntryId);
+
+                foreach (var fileEntry in result.FileEntries)
+                {
+                    if (!dictionaryClassificationResults.TryGetValue(
+                            fileEntry.Id, out var classificationResult))
+                    {
+                        continue;
+                    }
+
+                    var fileScanRow = ConvertToFileScanRow(
+                        fileEntry, classificationResult);
+
+                    rows.Add(fileScanRow);
+                }
+            }
+            ListaArchivos.ItemsSource = rows;
+            TxtEstado.Text = summary.Status.ToString();
         }
         finally
         {
@@ -84,5 +107,24 @@ public partial class MainWindow : System.Windows.Window
         {
             MessageBox.Show($"Error al cancelar el escaneo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private FileScanRow ConvertToFileScanRow(FileEntry fileEntry, ClassificationResult classificationResult)
+    {
+        if (fileEntry == null)
+        {
+            throw new ArgumentNullException(nameof(fileEntry));
+        }
+        if (classificationResult == null)
+        {
+            throw new ArgumentNullException(nameof(classificationResult));
+        }
+        return new FileScanRow(
+            fileEntry.FileName,
+            fileEntry.FilePath,
+            classificationResult.Category,
+            classificationResult.Status,
+            fileEntry.Size
+        );
     }
 }
