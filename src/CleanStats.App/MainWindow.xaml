@@ -1,200 +1,260 @@
 <Window x:Class="CleanStats.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CleanStats" Width="1100" Height="760"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        Title="CleanStats" Width="1600" Height="1320" MaxHeight="1320" MaxWidth="1600"
         WindowStartupLocation="CenterScreen" Background="#1F1F1F"
         FontFamily="Segoe UI" Foreground="#C0C0C0">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="26,24,26,20">
-            <DockPanel  VerticalAlignment="Center">
-                <Border Width="44" Height="44" CornerRadius="12" Background="{StaticResource Rojo}">
-                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="22"
-                     Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="CleanStats" FontSize="22" FontWeight="Bold"
-                     Foreground="#FFFFFF"/>
-                    <TextBlock Text="Analiza archivos sin modificar el sistema"
-                     FontSize="12" Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
-                </StackPanel>
-                <Border Width="100" Height="20" CornerRadius="5" Background="{StaticResource Rojo}" DockPanel.Dock="Right">
-                    <TextBlock Text="Escaneo local" FontSize="13" FontWeight="Bold" Foreground="White"  Padding="2" TextAlignment="Center"/>
-                </Border>
-            </DockPanel>
+            <TabControl Style="{StaticResource TabCard}">
+                <TabItem Header="Resumen" Style="{StaticResource TabLinea}">
+                    <StackPanel  Effect="{StaticResource SombraTarjeta}" Margin="12" >
+                        <Grid ColumnDefinitions="*,auto"  VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="44" Height="44" CornerRadius="12" Background="{StaticResource Rojo}">
+                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel  Margin="14" VerticalAlignment="Center">
+                                    <TextBlock Text="CleanStats" FontSize="32" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    <TextBlock Text="Analiza archivos sin modificar el sistema" FontSize="16" Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="200" Height="30" CornerRadius="5" Background="{StaticResource Rojo}" DockPanel.Dock="Right">
+                                <TextBlock Text="Escaneo local" FontSize="20" FontWeight="Bold" Foreground="White"  Padding="2" TextAlignment="Center"/>
+                            </Border>
+                        </Grid>
 
-            <!-- Tarjeta: ubicación -->
-            <Border Background="{StaticResource Tarjeta}" CornerRadius="18"
-              BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
-              Effect="{StaticResource SombraTarjeta}" Margin="0,22,0,0" Padding="20,18">
-                <StackPanel>
-                    <TextBlock Text="UBICACIÓN DEL ESCANEO" FontSize="11" FontWeight="SemiBold"
-                     Foreground="{StaticResource PlataTenue}"/>
-                    <Grid Margin="0,14,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Width="46" Height="46" CornerRadius="12" Background="{StaticResource RojoSuave}">
-                            <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" FontSize="20"
-                         Foreground="{StaticResource RojoClaro}"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Carpeta seleccionada" FontSize="11"
-                         Foreground="{StaticResource PlataTenue}"/>
-                            <TextBlock x:Name="TxtRuta" Text="C:\Users\Usuario" FontFamily="Consolas"
-                         FontSize="14" Foreground="{StaticResource Plata}"
-                         TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <Button Grid.Column="2" Style="{StaticResource BotonChico}" Content="Cambiar"
-                    VerticalAlignment="Center" Margin="12,0,0,0"
-                    ToolTip="Elegir carpeta" x:Name="BtnCambiarRuta" Click="BtnCambiarRuta_Click" />
-                    </Grid>
-                </StackPanel>
-            </Border>
+                        <Grid  Effect="{StaticResource SombraTarjeta}" Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-            <Border Background="{StaticResource Tarjeta}" CornerRadius="18"
-              BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
-              Effect="{StaticResource SombraTarjeta}" Margin="0,14,0,0" Padding="20,18">
-                <StackPanel>
-                    <TextBlock Text="OPCIONES" FontSize="11" FontWeight="SemiBold"
-                     Foreground="{StaticResource PlataTenue}"/>
-                    <CheckBox x:Name="ChkOcultos" Style="{StaticResource Toggle}"
-                    Content="Incluir archivos y directorios ocultos" Margin="0,12,0,0"/>
-                </StackPanel>
-            </Border>
-
-            <Border Background="{StaticResource Tarjeta}" CornerRadius="18"
-              BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
-              Effect="{StaticResource SombraTarjeta}" Margin="0,14,0,0" Padding="20,18">
-                <StackPanel>
-                    <TextBlock Text="PROGRESO DEL ESCANEO" FontSize="11" FontWeight="SemiBold"
-                     Foreground="{StaticResource PlataTenue}"/>
-
-                    <UniformGrid Columns="3" Margin="0,14,0,0">
-                        <StackPanel>
-                            <TextBlock Text="&#xE8A9;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                         Foreground="{StaticResource RojoClaro}"/>
-                            <TextBlock x:Name="TxtEncontrados" Text="0" FontSize="26" FontWeight="Light"
-                         Foreground="#FFFFFF" Margin="0,6,0,0"/>
-                            <TextBlock Text="Encontrados" FontSize="11"
-                         Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        <StackPanel Margin="10,0,0,0">
-                            <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                         Foreground="{StaticResource Plata}"/>
-                            <TextBlock x:Name="TxtProcesados" Text="0" FontSize="26" FontWeight="Light"
-                         Foreground="#FFFFFF" Margin="0,6,0,0"/>
-                            <TextBlock Text="Procesados" FontSize="11"
-                         Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        <StackPanel Margin="10,0,0,0">
-                            <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                         Foreground="{StaticResource Plata}"/>
-                            <TextBlock x:Name="TxtErrores" Text="0" FontSize="26" FontWeight="Light"
-                         Foreground="{StaticResource RojoClaro}" Margin="0,6,0,0"/>
-                            <TextBlock Text="Con errores" FontSize="11"
-                         Foreground="{StaticResource PlataTenue}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </UniformGrid>
-                </StackPanel>
-            </Border>
-            <!-- Tarjeta: archivos analizados -->
-            <Border Background="{StaticResource Tarjeta}" CornerRadius="18"
-              BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
-              Effect="{StaticResource SombraTarjeta}" Margin="0,14,0,0" Padding="20,18">
-                <StackPanel>
-                    <TextBlock Text="ARCHIVOS ANALIZADOS" FontSize="11" FontWeight="SemiBold"
-                     Foreground="{StaticResource PlataTenue}"/>
-
-                    <Grid Margin="0,14,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Archivos procesados" FontSize="12"
-                       Foreground="{StaticResource PlataTenue}"/>
-                        <TextBlock Text="Clasificación" FontSize="12" Grid.Column="1"
-                       Foreground="{StaticResource PlataTenue}" HorizontalAlignment="Right"/>
-                    </Grid>
-
-                    <Border Height="1" Background="{StaticResource TarjetaBorde}" Margin="0,12,0,0"/>
-
-                    <ScrollViewer MaxHeight="230" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,4,0,0">
-                        <ScrollViewer.Resources>
-                            <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource CleanScrollBar}"/>
-                        </ScrollViewer.Resources>
-                        <ItemsControl x:Name="ListaArchivos">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,12,0,0">
+                            <Border Background="{StaticResource Tarjeta}" CornerRadius="10" BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1" Effect="{StaticResource SombraTarjeta}" Margin="5" Padding="18">
+                                <StackPanel>
+                                    <TextBlock Text="UBICACIÓN DEL ESCANEO" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}"/>
+                                    <Grid Margin="0,14,0,0">
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding FileName}"
-                                               FontSize="14"
-                                               FontWeight="SemiBold"
-                                               Foreground="#FFFFFF"
-                                               TextTrimming="CharacterEllipsis"/>
-
-                                            <TextBlock Text="{Binding FilePath}"
-                                               FontSize="11"
-                                               FontFamily="Consolas"
-                                               Foreground="{StaticResource PlataTenue}"
-                                               TextTrimming="CharacterEllipsis"
-                                               Margin="0,3,0,0"/>
-                                        </StackPanel>
-
-                                        <Border Grid.Column="1"
-                                            Style="{StaticResource EtiquetaCat}"
-                                            Margin="12,0,0,0" Padding="5">
-                                            <TextBlock Style="{StaticResource EtiquetaCatTexto}" Text="{Binding Category}"/>
+                                        <Border Width="46" Height="46" CornerRadius="10" Background="{StaticResource RojoSuave}">
+                                            <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="{StaticResource RojoClaro}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
+                                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Carpeta seleccionada" FontSize="11" Foreground="{StaticResource PlataTenue}"/>
+                                            <TextBlock x:Name="TxtRuta" Text="C:\Users\Usuario" FontFamily="Consolas" FontSize="14" Foreground="{StaticResource Plata}" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Style="{StaticResource BotonChico}" Content="Cambiar" VerticalAlignment="Center" Margin="12,0,0,0" ToolTip="Elegir carpeta" x:Name="BtnCambiarRuta" Click="BtnCambiarRuta_Click" />
                                     </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                                </StackPanel>
+                            </Border>
 
-                    <TextBlock x:Name="TxtNotaLista" FontSize="11" TextWrapping="Wrap"
-                     Foreground="{StaticResource PlataTenue}" Margin="0,12,0,0"/>
-                </StackPanel>
-            </Border>
+                            <Border Grid.Column="1" Background="{StaticResource Tarjeta}" CornerRadius="10" BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"  Effect="{StaticResource SombraTarjeta}" Margin="5" Padding="18">
+                                <StackPanel>
+                                    <TextBlock Text="OPCIONES" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}"/>
+                                    <CheckBox x:Name="ChkOcultos" Style="{StaticResource Toggle}" Content="Incluir archivos y directorios ocultos" Margin="0,12,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Background="{StaticResource Tarjeta}" CornerRadius="10" BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1" Effect="{StaticResource SombraTarjeta}" Margin="14" Padding="20,18">
+                            <StackPanel>
+                                <TextBlock Text="PROGRESO DEL ESCANEO" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}"/>
+
+                                <UniformGrid Columns="3" Margin="14">
+                                    <Grid ColumnDefinitions="auto,*">
+                                        <Image Width="80" Height="80" VerticalAlignment="Center" HorizontalAlignment="Left" Source="/Assests/Folder.png" Margin="40,0,0,0" Stretch="Uniform"/>
+                                        <StackPanel Grid.Column="1" Margin="10" HorizontalAlignment="Center" >
+                                            <TextBlock x:Name="TxtEncontrados" Text="0" FontSize="46" FontWeight="SemiBold"  Foreground="#FFFFFF" Margin="6" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Encontrados" FontSize="22" Foreground="{StaticResource PlataTenue}" Margin="2"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="auto,*">
+                                        <Image Width="80" Height="80" VerticalAlignment="Center" HorizontalAlignment="Left" Source="/Assests/Procesado.png" Margin="40,0,0,0" Stretch="Uniform"/>
+                                        <StackPanel Grid.Column="1" Margin="10" HorizontalAlignment="Center" >
+                                            <TextBlock x:Name="TxtProcesados" Text="0" FontSize="46" FontWeight="SemiBold"  Foreground="#FFFFFF" Margin="6" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Procesados" FontSize="22" Foreground="{StaticResource PlataTenue}" Margin="2"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="auto,*">
+                                        <Image Width="80" Height="80" VerticalAlignment="Center" HorizontalAlignment="Left" Source="/Assests/Fallidos.png" Margin="40,0,0,0" Stretch="Uniform"/>
+                                        <StackPanel Grid.Column="1" Margin="10" HorizontalAlignment="Center" >
+                                            <TextBlock x:Name="TxtErrores" Text="0" FontSize="46" FontWeight="SemiBold"  Foreground="#FFFFFF" Margin="6" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Con errores" FontSize="22" Foreground="{StaticResource PlataTenue}" Margin="2"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal" 
+              Effect="{StaticResource SombraTarjeta}" Margin="12" HorizontalAlignment="Center" >
+                            <StackPanel>
+                                <TextBlock
+                          Text="Archivos procesados"
+                          FontSize="18"
+                          FontWeight="SemiBold"
+                          Foreground="White"
+                          HorizontalAlignment="Center"
+                          Margin="0,0,0,15"/>
+                                <Border Background="{StaticResource Tarjeta}" CornerRadius="10"
+                        BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
+                        Effect="{StaticResource SombraTarjeta}" Margin="2" Padding="18">
+                                    <lvc:CartesianChart
+                      Series="{Binding chartsGraph.Series}"
+                      XAxes="{Binding chartsGraph.XAxes}"
+                      Background="Transparent"
+                      Width="400"
+                      Height="400" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock
+                      Text="Archivos por categoría"
+                      FontSize="18"
+                      FontWeight="SemiBold"
+                      Foreground="White"
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,15"/>
+                                <Border Background="{StaticResource Tarjeta}" CornerRadius="10"
+                          BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
+                          Effect="{StaticResource SombraTarjeta}" Margin="2" Padding="18">
+                                    <lvc:PieChart
+                            Series="{Binding rowGraph.Series}"
+                            Background="Transparent"
+                            Width="400"
+                            Height="400" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock
+                      Text="Espacio de almacenamiento ocupado por categoría"
+                      FontSize="18"
+                      FontWeight="SemiBold"
+                      Foreground="White"
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,15"/>
+                                <Border Background="{StaticResource Tarjeta}" CornerRadius="10"
+                    BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1"
+                    Effect="{StaticResource SombraTarjeta}" Margin="2" Padding="18">
+                                    <lvc:PieChart
+                      Series="{Binding storageGraph.Series}"
+                      Background="Transparent"
+                      Width="400"
+                      Height="400" />
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
 
 
-            <Grid Margin="0,18,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="14"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Button x:Name="BtnIniciar" Style="{StaticResource BotonRojo}" Click="BtnIniciar_Click" >
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                        <Grid Margin="18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="BtnIniciar" Style="{StaticResource BotonRojo}" Click="BtnIniciar_Click" >
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets" FontSize="17"
                        VerticalAlignment="Center"/>
-                        <TextBlock Text="Iniciar escaneo" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="BtnCancelar" Grid.Column="2" Style="{StaticResource BotonContorno}"
+                                    <TextBlock Text="Iniciar escaneo" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnCancelar" Grid.Column="2" Style="{StaticResource BotonContorno}"
                 IsEnabled="False" Click="BtnCancelar_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets" FontSize="17"
                        VerticalAlignment="Center"/>
-                        <TextBlock Text="Cancelar" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-            </Grid>
+                                    <TextBlock Text="Cancelar" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
 
-            <StackPanel Orientation="Horizontal" Margin="0,18,0,0" HorizontalAlignment="Center">
-                <Ellipse x:Name="PuntoEstado" Width="8" Height="8" Fill="#C0C0C0"
+                        <StackPanel Orientation="Horizontal" Margin="0,18,0,0" HorizontalAlignment="Center">
+                            <Ellipse x:Name="PuntoEstado" Width="8" Height="8" Fill="#C0C0C0"
                  VerticalAlignment="Center"/>
-                <TextBlock x:Name="TxtEstado" Text="Listo para escanear." FontSize="12"
+                            <TextBlock x:Name="TxtEstado" Text="Listo para escanear." FontSize="12"
                    Foreground="{StaticResource PlataTenue}" Margin="8,0,0,0"/>
-            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="Archivos"  Style="{StaticResource TabLinea}">
+                    <Border Background="{StaticResource Tarjeta}" CornerRadius="10" BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1" Effect="{StaticResource SombraTarjeta}" Margin="14" Padding="18">
+                        <StackPanel>
+                            <TextBlock Text="ARCHIVOS ANALIZADOS" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}"/>
+
+                            <Grid Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Archivos procesados" FontSize="12"
+                       Foreground="{StaticResource PlataTenue}"  Margin="3"/>
+                                <TextBlock Text="Categoría" FontSize="12" Grid.Column="1"
+                        Foreground="{StaticResource PlataTenue}" HorizontalAlignment="Right" Margin="3"/>
+                                <TextBlock Text="Clasificación" FontSize="12" Grid.Column="2"
+                       Foreground="{StaticResource PlataTenue}" HorizontalAlignment="Right" Margin="3"/>
+                            </Grid>
+
+                            <Border Height="1" Background="{StaticResource TarjetaBorde}" Margin="0,12,0,0"/>
+                            <ListView x:Name="ListaArchivos"
+                                  MaxHeight="230"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  ScrollViewer.CanContentScroll="True"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling"
+                                  BorderThickness="0"
+                                  Background="Transparent">
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel/>
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,12,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding FileName}" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding FilePath}"  FontSize="11" FontFamily="Consolas" Foreground="{StaticResource PlataTenue}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+                                                <TextBlock Text="{Binding ReadableFileSize}" FontSize="11" FontFamily="Consolas" Foreground="{StaticResource PlataTenue}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Style="{StaticResource EtiquetaCat}" Margin="12,0,0,0" Padding="5">
+                                                <TextBlock Style="{StaticResource EtiquetaCatTexto}" Text="{Binding ReadableCategory}"/>
+                                            </Border>
+                                            <Border Grid.Column="2" Style="{StaticResource EtiquetaStatus}" Margin="12,0,0,0" Padding="5">
+                                                <TextBlock Style="{StaticResource EtiquetaStatTexto}" Text="{Binding ReadableStatus}"/>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            <TextBlock x:Name="TxtNotaLista" FontSize="11" TextWrapping="Wrap"
+                     Foreground="{StaticResource PlataTenue}" Margin="0,12,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                </TabItem>
+
+                <TabItem Header="Estadísticas"  Style="{StaticResource TabLinea}">
+                    <TextBlock Text="Espacio de almacenamiento ocupado por categoría"/>
+                </TabItem>
+
+                <TabItem Header="Incidencias"  Style="{StaticResource TabLinea}">
+                    <TextBlock Text="Errores del análisis"/>
+                </TabItem>
+            </TabControl>
         </StackPanel>
     </ScrollViewer>
 </Window>

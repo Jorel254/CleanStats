@@ -7,7 +7,21 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assests\Fallidos.png" />
+    <None Remove="Assests\Folder.png" />
+    <None Remove="Assests\Procesado.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="LiveChartsCore" Version="2.0.5" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.5" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CleanStats.Core\CleanStats.Core.csproj" />
     <ProjectReference Include="..\CleanStats.Infrastructure\CleanStats.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assests\Fallidos.png" />
+    <Resource Include="Assests\Folder.png" />
+    <Resource Include="Assests\Procesado.png" />
   </ItemGroup>
 </Project>
