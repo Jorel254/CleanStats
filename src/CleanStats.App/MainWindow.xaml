@@ -194,17 +194,14 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Archivos procesados" FontSize="12"
-                       Foreground="{StaticResource PlataTenue}"  Margin="3"/>
-                                <TextBlock Text="Categoría" FontSize="12" Grid.Column="1"
-                        Foreground="{StaticResource PlataTenue}" HorizontalAlignment="Right" Margin="3"/>
-                                <TextBlock Text="Clasificación" FontSize="12" Grid.Column="2"
-                       Foreground="{StaticResource PlataTenue}" HorizontalAlignment="Right" Margin="3"/>
+                                <TextBlock Text="Archivos procesados" FontSize="12" Foreground="{StaticResource PlataTenue}"  Margin="3"/>
+                                <TextBlock Text="Categoría" FontSize="12" Grid.Column="1" Foreground="{StaticResource PlataTenue}" HorizontalAlignment="Right" Margin="3"/>
+                                <TextBlock Text="Clasificación" FontSize="12" Grid.Column="2" Foreground="{StaticResource PlataTenue}" HorizontalAlignment="Right" Margin="3"/>
                             </Grid>
 
                             <Border Height="1" Background="{StaticResource TarjetaBorde}" Margin="0,12,0,0"/>
                             <ListView x:Name="ListaArchivos"
-                                  MaxHeight="230"
+                                  MaxHeight="730"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                   ScrollViewer.CanContentScroll="True"
@@ -248,11 +245,76 @@
                 </TabItem>
 
                 <TabItem Header="Estadísticas"  Style="{StaticResource TabLinea}">
-                    <TextBlock Text="Espacio de almacenamiento ocupado por categoría"/>
-                </TabItem>
+                    <StackPanel>
+                        <Border Background="{StaticResource Tarjeta}" CornerRadius="10" BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1" Effect="{StaticResource SombraTarjeta}" Margin="14" Padding="20,18">
+                            <StackPanel>
+                                <TextBlock Text="ESPACIO TOTAL ANALIZADO" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}"/>
+                                <StackPanel>
+                                    <TextBlock Text="0" FontSize="46" FontWeight="SemiBold"  Foreground="#FFFFFF" Margin="6" HorizontalAlignment="Left" x:Name="EspacioTotal"/>
+                                    <TextBlock Text="Archivos procesados correctamente" FontSize="22" Foreground="{StaticResource PlataTenue}" Margin="2"/>
+                                </StackPanel>
+                                <Separator/>
+                                <UniformGrid Columns="2">
+                                    <TextBlock Text="ESPACIO CLASIFICADO" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}" VerticalAlignment="Center" />
+                                    <TextBlock Text="0" FontSize="46" FontWeight="SemiBold"  Foreground="#FFFFFF" Margin="6" HorizontalAlignment="Right" VerticalAlignment="Center" x:Name="EspacioClasificado"/>
+                                </UniformGrid>
+                                <UniformGrid Columns="2">
+                                    <TextBlock Text="PENDIENTE DE REVISIÓN" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}" VerticalAlignment="Center" />
+                                    <TextBlock  Text="0" FontSize="46" FontWeight="SemiBold"  Foreground="#FFFFFF" Margin="6" HorizontalAlignment="Right" VerticalAlignment="Center" x:Name="EspacioPendiente"/>
+                                </UniformGrid>
+                                <UniformGrid Columns="2">
+                                    <TextBlock Text="SIN CLASIFICAR" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}" VerticalAlignment="Center" />
+                                    <TextBlock  Text="0" FontSize="46" FontWeight="SemiBold"  Foreground="#FFFFFF" Margin="6" HorizontalAlignment="Right" VerticalAlignment="Center" x:Name="EspacioSinClasificar"/>
+                                </UniformGrid>
+                                <TextBlock Text="Estos valores son resultado del último análisis" FontSize="22" Foreground="{StaticResource PlataTenue}" Margin="2"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource Tarjeta}" CornerRadius="10" BorderBrush="{StaticResource TarjetaBorde}" BorderThickness="1" Effect="{StaticResource SombraTarjeta}" Margin="14" Padding="18">
+                            <StackPanel>
+                                <TextBlock Text="Incidentes detectados" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Plata}"/>
 
-                <TabItem Header="Incidencias"  Style="{StaticResource TabLinea}">
-                    <TextBlock Text="Errores del análisis"/>
+                                <Separator/>
+                                <ListView x:Name="ListaIssues"
+                                      MaxHeight="730"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                      ScrollViewer.CanContentScroll="True"
+                                      VirtualizingPanel.IsVirtualizing="True"
+                                      VirtualizingPanel.VirtualizationMode="Recycling"
+                                      BorderThickness="0"
+                                      Background="Transparent">
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,12,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding FileName}" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding FilePath}"  FontSize="11" FontFamily="Consolas" Foreground="{StaticResource PlataTenue}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+                                                    <TextBlock Text="{Binding ReadableFileSize}" FontSize="11" FontFamily="Consolas" Foreground="{StaticResource PlataTenue}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border Grid.Column="1" Style="{StaticResource EtiquetaCat}" Margin="12,0,0,0" Padding="5">
+                                                    <TextBlock Style="{StaticResource EtiquetaCatTexto}" Text="{Binding ReadableCategory}"/>
+                                                </Border>
+                                                <Border Grid.Column="2" Style="{StaticResource EtiquetaStatus}" Margin="12,0,0,0" Padding="5">
+                                                    <TextBlock Style="{StaticResource EtiquetaStatTexto}" Text="{Binding ReadableStatus}"/>
+                                                </Border>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                                <TextBlock  FontSize="11" TextWrapping="Wrap" Foreground="{StaticResource PlataTenue}" Margin="0,12,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </TabItem>
             </TabControl>
         </StackPanel>

@@ -1,5 +1,6 @@
 using CleanStats.Core.Contracts;
 using CleanStats.Core.Model;
+using CleanStats.Core.Progress;
 using LiveChartsCore.SkiaSharpView.Painting;
 using Microsoft.Win32;
 using SkiaSharp;
@@ -91,6 +92,8 @@ public partial class MainWindow : System.Windows.Window
             LoadSummary(summary);
             LoadFileRows(rows);
             LoadStorageByCategory(rows);
+            LoadStorageSummary(result);
+            EspacioTotal.Text = ConvertSizeToReadableFormat(summary.TotalBytesScanned);
         }
         finally
         {
@@ -251,5 +254,20 @@ public partial class MainWindow : System.Windows.Window
             .ToList();
 
         storageGraph.PieChart(storageByCategory, true);
+    }
+    public void LoadStorageSummary(ScanResult result)
+    {
+        var dictionaryClassificationResults = result.Classifications.ToDictionary(cr => cr.FileEntryId);
+        var dictionaryFileEntries = result.FileEntries.ToDictionary(fe => fe.Id);
+        EspacioPendiente.Text = ConvertSizeToReadableFormat(dictionaryClassificationResults
+            .Where(kvp => kvp.Value.Status == ClassificationStatus.PendingReview)
+            .Sum(kvp => dictionaryFileEntries[kvp.Key].Size));
+        EspacioClasificado.Text = ConvertSizeToReadableFormat(dictionaryClassificationResults
+            .Where(kvp => kvp.Value.Status == ClassificationStatus.Classified)
+            .Sum(kvp => dictionaryFileEntries[kvp.Key].Size));
+        EspacioSinClasificar.Text = ConvertSizeToReadableFormat(dictionaryClassificationResults
+            .Where(kvp => kvp.Value.Status == ClassificationStatus.Unclassified)
+            .Sum(kvp => dictionaryFileEntries[kvp.Key].Size));
+
     }
 }

@@ -48,7 +48,7 @@ public class ChartsGraph
                 {
                     int index = (int)point.Index;
                     var item = data[index];
-                    return $"{item.nombre}: {item.valor})";
+                    return $"{item.nombre}: {item.valor}";
                 }
             }
         };
